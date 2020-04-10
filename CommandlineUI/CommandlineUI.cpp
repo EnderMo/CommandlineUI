@@ -22,8 +22,9 @@ HWND c_hwnd;
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK BtnProc2(HWND, UINT, WPARAM, LPARAM);//按钮2
 LRESULT CALLBACK BtnProc3(HWND, UINT, WPARAM, LPARAM);//send按钮3窗口过程，按下后检测用户输入执行对应消息处理
- //------------------------------------------------------------------------------------------------------------------------
-
+//------------------------------------------------------------------------------------------------------------------------
+// for easy replace ，set UUUUIIDD=WWWWWWWW-XXXX-YYYY-ZZZZ-WWWWWWWWWWWW ！
+// 这个函数只要运行 一次 ！
 void WriteJson()
 {
     FILE* fp = fopen("manifest.json", "wt");
@@ -33,9 +34,9 @@ void WriteJson()
             "{\n"
             "\"format_version\": 1,\n"
             "\"header\": {\n"
-            "    \"description\": \"resourcePack.vanilla.description\",\n"
-            "    \"name\": \"resourcePack.vanilla.name\",\n"
-            "    \"uuid\": \"UUUUIIDD\",\n"
+            "    \"description\": \"资源包显示的介绍（这个manifest只可以用于材质，资源音效之类的）-使用§修改文本颜色- ！-这个文件中不要包含中文！否则会出现乱码！请删除这些中文内容！-\",\n"
+            "    \"name\": \"资源包展示的名称\",\n"
+            "    \"uuid\": \"WWWWWWWW-XXXX-YYYY-ZZZZ-WWWWWWWWWWWW\",\n"
             "    \"version\": [0, 0, 1],\n"
             "    \"min_engine_version\": [1, 12, 0]\n"
             "},\n"
@@ -43,7 +44,7 @@ void WriteJson()
             "    {\n"
             "        \"description\": \"resourcePack.vanilla.description\",\n"
             "        \"type\": \"resources\",\n"
-            "        \"uuid\": \"UUUUIIDD\",\n"
+            "        \"uuid\": \"53644fac-a276-42e5-843f-a3c6f169a9ab\",\n"
             "        \"version\": [0, 0, 1]\n"
             "    }\n"
             "]\n"
@@ -52,7 +53,36 @@ void WriteJson()
         fclose(fp);
     }
 }
-
+// 重写 Uuid
+void SetJsonUuid(char* newJsonUuid)
+{
+    FILE* fp = fopen("\manifest.json", "rt");
+    int len;
+    char buf[1024];
+    if (fp)
+    {// read
+        len = fread(buf, 1, sizeof(buf), fp);
+        buf[len] = 0; // become string
+        fclose(fp);
+    }
+    // 
+    char* start;
+    int sublen = strlen(newJsonUuid);
+    start = strstr(buf, "WWWWWWWW-XXXX-YYYY-ZZZZ-WWWWWWWWWWWW");
+    while (start)
+    {
+        memmove(start, newJsonUuid, sublen);
+        start += sublen;
+        start = strstr(buf, "WWWWWWWW-XXXX-YYYY-ZZZZ-WWWWWWWWWWWW");
+    }
+    //
+    fp = fopen("\manifest.json", "wt");
+    if (fp)
+    {// write
+        fwrite(buf, 1, len, fp);
+        fclose(fp);
+    }
+}
 //-----------------------------------------------------------------------------
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -549,13 +579,13 @@ LRESULT CALLBACK BtnProc3(HWND hBtn3, UINT message, WPARAM wParam, LPARAM lParam
             UuidCreate(&uuid);
             unsigned char* str = (unsigned char*)malloc(256);
             UuidToStringA(&uuid, &str);
+            system("del manifest.json");
             //在这里打开一个manifest.json，没有则建造，存在则替换
-            //manifest.json中写入如题的代码
-            //在这个if语句内
-            //附加：替换UUUUIIDD的字符
             WriteJson();
+            SetJsonUuid((char*)str);
             RpcStringFreeA(&str);
-            MessageBox(NULL, "MANIFEST.JSON IS BUILD", "manifest build", 0);
+            MessageBox(NULL, "MANIFEST.JSON （用于MCBE资源包）建造完成！即将打开文件。\n\n UUID已经自动重新构建，请勿再次修改！", "manifest build", 0);
+            system("start notepad.exe manifest.json");
             return 0;
         }
         ///THEME----------------------------------------------------------------------------------------
@@ -566,7 +596,7 @@ LRESULT CALLBACK BtnProc3(HWND hBtn3, UINT message, WPARAM wParam, LPARAM lParam
         //help————————————————————————————————————————————————————————————————————————————————————————————————
         if (strncmp(m_strInput, "help", 4) == 0) // same
         {
-            MessageBox(hBtn3, " gen uuid -生成UUID \n\n build uuid in txt -在当前目录下将uuid写入uuid.txt \n\n ", "COMMANDLINEUI", MB_OK);
+            MessageBox(hBtn3, " gen uuid -生成UUID \n\n build uuid in txt -在当前目录下将uuid写入uuid.txt \n\n build manifest -建立适用于MCPE的插件MANIFEST \n\n ", "COMMANDLINEUI", MB_OK);
         }
         //
         //            if(.........) {;}
