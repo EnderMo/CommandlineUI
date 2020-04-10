@@ -1,12 +1,10 @@
-﻿D:\VisualStudio2019\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(467,5): warning MSB8028: 中间目录(Release\)包含从另一个项目(FrameworkUI.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
-  CommandlineUI.cpp
+﻿  CommandlineUI.cpp
 D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\CommandlineUI\CommandlineUI.cpp(17,32): warning C4081: 应输入“newline”；找到“;”
-D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\CommandlineUI\CommandlineUI.cpp(147,10): warning C4101: “txt”: 未引用的局部变量
-D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\CommandlineUI\CommandlineUI.cpp(320,9): warning C4101: “hdc”: 未引用的局部变量
-D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\CommandlineUI\CommandlineUI.cpp(363,9): warning C4101: “hdc”: 未引用的局部变量
+D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\CommandlineUI\CommandlineUI.cpp(179,10): warning C4101: “txt”: 未引用的局部变量
+D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\CommandlineUI\CommandlineUI.cpp(490,9): warning C4101: “hdc”: 未引用的局部变量
   正在生成代码
-  2 of 11 functions (18.2%) were compiled, the rest were copied from previous compilation.
+  2 of 153 functions ( 1.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   FrameworkUI.vcxproj -> D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\CommandlineUI\Release\CommandlineUI.exe

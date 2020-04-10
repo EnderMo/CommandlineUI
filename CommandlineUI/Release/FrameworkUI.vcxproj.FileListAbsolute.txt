@@ -1,3 +1,1 @@
-D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\-\FrameworkUI\Release\FrameworkUI.exe
-D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\FrameworkUI\Release\CommandlineUI.exe
 D:\Enderend soft chest\Desktop\VertexLab\.VertexLab\CommandlineUI\Release\CommandlineUI.exe

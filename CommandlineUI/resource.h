@@ -7,6 +7,7 @@
 #define IDS_APP_TITLE                   103
 #define IDD_ABOUTBOX                    103
 #define IDM_ABOUT                       104
+#define IDC_POINTER                     1099
 #define IDM_EXIT                        105
 #define IDI_FRAMEWORKUI                 107
 #define IDI_SMALL                       108
@@ -15,6 +16,7 @@
 #define IDB_BITMAP1                     129
 #define IDB_BITMAP2                     130
 #define IDB_BITMAP3                     131
+#define IDC_CURSOR3                     135
 #define IDC_EDIT2                       1000
 #define IDB_IDOK1                       1001
 #define IDC_SLIDER1                     1002
@@ -27,7 +29,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        137
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           110

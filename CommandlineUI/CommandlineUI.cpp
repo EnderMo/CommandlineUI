@@ -17,11 +17,43 @@
 #pragma warning(disable:4996);
 
 HINSTANCE g_hInstance;
+HWND c_hwnd;
  
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-LRESULT CALLBACK BtnProc2(HWND, UINT, WPARAM, LPARAM);//按钮2窗口过程，但是我想把它变成输入框
+LRESULT CALLBACK BtnProc2(HWND, UINT, WPARAM, LPARAM);//按钮2
 LRESULT CALLBACK BtnProc3(HWND, UINT, WPARAM, LPARAM);//send按钮3窗口过程，按下后检测用户输入执行对应消息处理
- 
+ //------------------------------------------------------------------------------------------------------------------------
+
+void WriteJson()
+{
+    FILE* fp = fopen("manifest.json", "wt");
+    if (fp)
+    {
+        fprintf(fp,
+            "{\n"
+            "\"format_version\": 1,\n"
+            "\"header\": {\n"
+            "    \"description\": \"resourcePack.vanilla.description\",\n"
+            "    \"name\": \"resourcePack.vanilla.name\",\n"
+            "    \"uuid\": \"UUUUIIDD\",\n"
+            "    \"version\": [0, 0, 1],\n"
+            "    \"min_engine_version\": [1, 12, 0]\n"
+            "},\n"
+            "\"modules\": [\n"
+            "    {\n"
+            "        \"description\": \"resourcePack.vanilla.description\",\n"
+            "        \"type\": \"resources\",\n"
+            "        \"uuid\": \"UUUUIIDD\",\n"
+            "        \"version\": [0, 0, 1]\n"
+            "    }\n"
+            "]\n"
+            "}"
+        );
+        fclose(fp);
+    }
+}
+
+//-----------------------------------------------------------------------------
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     // TODO: 在此处放置您的代码.
@@ -34,7 +66,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     wndclass.hbrBackground = (CreateSolidBrush(RGB(30,30,30)));
     wndclass.lpszClassName = className;
     wndclass.lpfnWndProc = WindowProc;
-    wndclass.hIcon = LoadIcon(NULL,MAKEINTRESOURCE(IDI_SMALL));
+    wndclass.hIcon = LoadIcon(g_hInstance,MAKEINTRESOURCE(IDI_SMALL));
     wndclass.hCursor = LoadCursor(NULL, (IDC_ARROW));
      
     RegisterClass(&wndclass);
@@ -75,7 +107,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     wndbtn3.cbClsExtra = 0;
     wndbtn3.cbWndExtra = 0;
     wndbtn3.hbrBackground = CreateSolidBrush(RGB(104, 104, 104));
-    wndbtn3.hCursor = NULL;
+    wndbtn3.hCursor = LoadCursor(g_hInstance,MAKEINTRESOURCE(IDC_CURSOR3));
     wndbtn3.hIcon = NULL;
     wndbtn3.hInstance = hInstance;
     wndbtn3.lpfnWndProc = BtnProc3;
@@ -261,7 +293,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             switch (LOWORD(wParam))
             {
                 case IDC_2:
-                    MessageBox(hwnd, "By 末影小末EnderMo \n CopyRight 2018-2020", "COMMANDLINEUI", MB_OK | MB_ICONINFORMATION);
+                    MessageBox(hwnd, "By 末影小末EnderMo \n CopyRight 2018-2020\n\n输入help就可以看帮助啦QwQ", "COMMANDLINEUI", MB_OK | MB_ICONINFORMATION);
                 break;
                 case IDC_3:
                     MessageBox(hwnd, "您点击了按钮。(我需要告诉你你做了什么）", "提示", MB_OK | MB_ICONINFORMATION);
@@ -289,7 +321,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
      
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
-//___________________________________________________________________________________________________________________________________
+//________________________________________________________________________________________________UUID POP___________________________________
 BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
@@ -311,50 +343,145 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return FALSE;
 }
-//子窗口过程---------这个按钮想做成命令输入框
+//子窗口过程---------命令输入框 ----------------------------------------------------------------
+static char m_strInput[70] = "";
 LRESULT CALLBACK BtnProc2(HWND hBtn2, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    using namespace::std;
+    static POINT m_CaretPos;
+    static int wid = 0;
+
     PAINTSTRUCT ps = { 0 };
     HDC DC = NULL;
-    HDC hdc;
+    //    RECT rc;
+    //    char prompt[40];
     switch (message)
     {
     case WM_CREATE:
     {
-        MoveWindow(hBtn2, 45, 200, 250, 100, TRUE);
+        MoveWindow(hBtn2, 50, 210, 250, 39, TRUE);
+        //
+        SetFocus(hBtn2);
+        ::CreateCaret(hBtn2, NULL, 1, 18);
+        m_CaretPos.x = 2;// 1 pxl bigger
+        m_CaretPos.y = 2;
+        ::SetCaretPos(m_CaretPos.x, m_CaretPos.y);
+        ShowCaret(hBtn2);
         //画椭圆区域，还可以画圆角，多边形等等
-        HRGN hRgn = CreateRoundRectRgn(10, 10, 600, 50, 0, 10);
-        SetWindowRgn(hBtn2, hRgn, TRUE);
+ //       HRGN hRgn = CreateRoundRectRgn(10, 10, 600, 50, 0, 10);
+//        SetWindowRgn(hBtn2, hRgn, TRUE);
     }
     break;
-    case WM_LBUTTONDOWN: //这一段代码先不用，给一个例子，就是用户输入“gen uuid”之后按下下面“sendbtn”一段代码的按钮，执行下面的生成UUID代码
+    case WM_LBUTTONDOWN:
     {
-        UUID uuid;
-        UuidCreate(&uuid);
-        unsigned char* str = (unsigned char*)malloc(256);
-        UuidToStringA(&uuid, &str);
-        DialogBoxParam((HINSTANCE)GetWindowLong(hBtn2, GWL_HINSTANCE),
-            MAKEINTRESOURCE(IDD_DIALOG1),NULL, DialogProc, (LPARAM)(int*)str);
-        RpcStringFreeA(&str);
+        //
+        SetFocus(hBtn2);
+        ::CreateCaret(hBtn2, NULL, 1, 18);
+        ShowCaret(hBtn2);
         break;
     }
     case WM_PAINT:
     {
         DC = BeginPaint(hBtn2, &ps);
-        SetBkColor(DC, RGB(104, 104, 104)); //按钮背景颜色
-        SetTextColor(DC, RGB(210, 210, 210)); //按钮上的文字颜色
-        TextOut(DC, 20, 19, _T("CreateUUID"), 10); //按钮上的文字
+        SetBkColor(DC, RGB(104, 104, 104));
+        SetTextColor(DC, RGB(67, 166, 66));
+        TextOut(DC, 1, 2, m_strInput, strlen(m_strInput));
+        //more left 1 than m_CaretPos.x=2
         EndPaint(hBtn2, &ps);
     }
     break;
+    case WM_SETFOCUS:
+        ShowCaret(hBtn2);
+        break;
+    case WM_KILLFOCUS:
+        HideCaret(hBtn2);
+        break;
+    case WM_CHAR:
+    {
+        DC = GetDC(hBtn2);
+        int len = strlen(m_strInput);
+        if ((char)wParam == 13)
+        {
+            OutputDebugString("input finish !");
+            return 0;
+        }
+        if ((char)wParam == 8) // backpace
+        {
+            if (len > 0)
+            {
+                if ((BYTE)m_strInput[len - 1] >= 0x80)
+                {// CN TXT
+                    GetCharWidth32(DC, 'L', 'L', &wid);// =10
+                    m_strInput[len - 1] = 0;
+                    len--;
+                    m_strInput[len - 1] = 0;
+                    m_CaretPos.x -= 2 * wid;
+                }
+                else
+                {
+                    GetCharWidth32(DC, m_strInput[len - 1], m_strInput[len - 1], &wid);
+                    m_strInput[len - 1] = 0;
+                    m_CaretPos.x -= wid;
+                }
+            }
+        }
+        else
+        {
+            if ((BYTE)wParam >= 0x80)
+            {// 汉字
+                GetCharWidth32(DC, 'L', 'L', &wid);// W=15 L=10
+                //                sprintf(prompt,"%d\n",wid);
+                //                OutputDebugString(prompt);
+            }
+            else
+            {
+                GetCharWidth32(DC, wParam, wParam, &wid);
+            }
+            // not strcat !
+            m_strInput[len] = wParam;
+            m_strInput[len + 1] = 0;
+            m_CaretPos.x += wid;
+        }
+        SetCaretPos(m_CaretPos.x, m_CaretPos.y);
+        // all !!
+        InvalidateRect(hBtn2, 0, TRUE);
+        break;
+    }
+    case WM_KEYDOWN:
+    {
+        switch (wParam)
+        {
+        case VK_LEFT:
+        {
+            if (m_CaretPos.x > 2)
+            {
+                int w = 10;
+                //GetCharWidth32(DC,'L','L',&w);// W=15 L=10
+                m_CaretPos.x -= w;
+                SetCaretPos(m_CaretPos.x, m_CaretPos.y);
+            }
+            break;
+        }
+        case VK_RIGHT:
+        {
+            if (m_CaretPos.x < 200)
+            {
+                int w = 10;
+                //GetCharWidth32(DC,'L','L',&w);// W=15 L=10
+                m_CaretPos.x += w;
+                SetCaretPos(m_CaretPos.x, m_CaretPos.y);
+            }
+            break;
+        }
+        }
+        break;
+    }
     default:
         break;
     }
     return DefWindowProc(hBtn2, message, wParam, lParam);
 
 }
-//sendbtn-----------------------------------------------------------------------
+//sendbtn----------------------------------------------------------------------------------------
 LRESULT CALLBACK BtnProc3(HWND hBtn3, UINT message, WPARAM wParam, LPARAM lParam)
 {
     using namespace::std;
@@ -365,7 +492,7 @@ LRESULT CALLBACK BtnProc3(HWND hBtn3, UINT message, WPARAM wParam, LPARAM lParam
     {
     case WM_CREATE:
     {
-        MoveWindow(hBtn3, 295, 200, 250, 100, TRUE);
+        MoveWindow(hBtn3, 300, 200, 250, 100, TRUE);
         //画椭圆区域，还可以画圆角，多边形等等
         HRGN hRgn = CreateRoundRectRgn(10, 10, 50, 50, 0, 10);
         SetWindowRgn(hBtn3, hRgn, TRUE);
@@ -373,7 +500,81 @@ LRESULT CALLBACK BtnProc3(HWND hBtn3, UINT message, WPARAM wParam, LPARAM lParam
     break;
     case WM_LBUTTONDOWN:
     {
-        //检测并处理用户输入
+        //指向UUID生成---------------------------------------------------------------------------------
+        if (strncmp(m_strInput, "gen uuid", 11) == 0) // same
+        {
+            UUID uuid;
+            UuidCreate(&uuid);
+            unsigned char* str = (unsigned char*)malloc(256);
+            UuidToStringA(&uuid, &str);
+            DialogBoxParam((HINSTANCE)GetWindowLong(hBtn3, GWL_HINSTANCE),
+                MAKEINTRESOURCE(IDD_DIALOG1), NULL, DialogProc, (LPARAM)(int*)str);
+            RpcStringFreeA(&str);
+        }
+        // CREATE uuid in txt-----------------------------------------------------------------------
+        if (strncmp(m_strInput, "build uuid in txt", 14) == 0) // same
+        {
+            UUID uuid;
+            UuidCreate(&uuid);
+            UUID uuid2;
+            UuidCreate(&uuid2);
+            UUID uuid3;
+            UuidCreate(&uuid3);
+            unsigned char* str = (unsigned char*)malloc(256);
+            UuidToStringA(&uuid, &str);
+            unsigned char* str1 = (unsigned char*)malloc(256);
+            UuidToStringA(&uuid2,  &str1);
+            unsigned char* str2 = (unsigned char*)malloc(256);
+            UuidToStringA(&uuid3, &str2);
+            system("del uuid.txt");
+            ofstream outfile;
+
+            outfile.open("uuid.txt", ios::out | ios::app);
+
+            outfile << (char*)str << "\n" << endl;
+            outfile << (char*)str1 << "\n" << endl;
+            outfile << (char*)str2 << "\n" << endl;
+
+
+            outfile.close();
+            RpcStringFreeA(&str);
+            MessageBox(NULL, "UUID 已成功创建于uuid.txt中", "COMPLETE", 0);
+            system("uuid.txt");
+            return 0;
+        }
+        //build manifest----------------------------------------------------------------------------
+        if (strncmp(m_strInput, "build manifest", 14) == 0)
+        {
+            UUID uuid;
+            UuidCreate(&uuid);
+            unsigned char* str = (unsigned char*)malloc(256);
+            UuidToStringA(&uuid, &str);
+            //在这里打开一个manifest.json，没有则建造，存在则替换
+            //manifest.json中写入如题的代码
+            //在这个if语句内
+            //附加：替换UUUUIIDD的字符
+            WriteJson();
+            RpcStringFreeA(&str);
+            MessageBox(NULL, "MANIFEST.JSON IS BUILD", "manifest build", 0);
+            return 0;
+        }
+        ///THEME----------------------------------------------------------------------------------------
+        if (strncmp(m_strInput, "settheme light", 15) == 0)
+        {
+            MessageBox(hBtn3, "这个命令正在开发，如果开发不成功，将在未来的版本中被移除。", "无法执行命令", 0);
+        }
+        //help————————————————————————————————————————————————————————————————————————————————————————————————
+        if (strncmp(m_strInput, "help", 4) == 0) // same
+        {
+            MessageBox(hBtn3, " gen uuid -生成UUID \n\n build uuid in txt -在当前目录下将uuid写入uuid.txt \n\n ", "COMMANDLINEUI", MB_OK);
+        }
+        //
+        //            if(.........) {;}
+        else
+        {
+            //如果不存在
+            //MessageBox(NULL, "//", "//", 0);
+        }
         return 0;
     }
     case WM_PAINT:
@@ -391,4 +592,3 @@ LRESULT CALLBACK BtnProc3(HWND hBtn3, UINT message, WPARAM wParam, LPARAM lParam
     return DefWindowProc(hBtn3, message, wParam, lParam);
 
 }
-

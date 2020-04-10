@@ -163,6 +163,7 @@
     <ResourceCompile Include="FrameworkUI.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\xlib\10.ico" />
     <Image Include="bitmap1.bmp">
       <DeploymentContent>true</DeploymentContent>
     </Image>
@@ -170,6 +171,15 @@
     <Image Include="bitmap3.bmp" />
     <Image Include="FrameworkUI.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\xlib\CUR.cur">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <Image Include="POINTER.cur">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
